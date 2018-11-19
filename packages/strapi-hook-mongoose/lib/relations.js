@@ -101,6 +101,18 @@ module.exports = {
 
     let acc = [];
 
+    // 1st level deep filter
+    if (filters.where) {
+      acc.push(
+        ...generateMatchStage(
+          strapiModel,
+          { relations: filters.where },
+          { prefixPath }
+        )
+      );
+    }
+
+    // 2nd+ level deep filter
     _.forEach(filters.relations, (value, key) => {
       if (key !== 'relations') {
         const nextPrefixedPath = `${prefixPath}${key}.`;
@@ -113,8 +125,8 @@ module.exports = {
         } else {
           const model = association.plugin
             ? strapi.plugins[association.plugin].models[
-                association.collection || association.model
-              ]
+              association.collection || association.model
+            ]
             : strapi.models[association.collection || association.model];
 
           // Generate lookup for this relation
